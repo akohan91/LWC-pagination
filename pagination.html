@@ -1,7 +1,7 @@
 <template>
     <div class="pagination">
-        <lightning-button variant="neutral" label="Prev" title="Previous" onclick={handlePrev} disabled={disabled.prev}></lightning-button>
-        <div class="pagination_text">{templateStartView} - {endView} of {allCount}</div>
-        <lightning-button variant="neutral" label="Next" title="Next" onclick={handleNext} disabled={disabled.next}></lightning-button>
+        <lightning-button-icon icon-name="utility:chevronleft" variant="neutral" title="Previous" onclick={handlePrev} disabled={disabled.prev}></lightning-button-icon>
+        <div class="pagination_text">{startView} - {endView} of {listSize}</div>
+        <lightning-button-icon icon-name="utility:chevronright" variant="neutral" title="Next" onclick={handleNext} disabled={disabled.next}></lightning-button-icon>
     </div>
 </template>
