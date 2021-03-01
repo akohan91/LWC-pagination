@@ -1,54 +1,67 @@
 import { LightningElement,api } from 'lwc';
- 
+
 export default class Pagination extends LightningElement {
-    @api countView;
-    @api allCount;
-    startView = 0;
-    endView;
-    get templateStartView(){
-        return this.startView + 1;
-    }
-    connectedCallback(){
-        this.endView = this.countView;
-        this.dispatchPaginationEvent()
-    }
-    handlePrev(){
-        if (this.startView - this.countView <= 0){
-            this.startView  = 0;
-            this.endView    = this.countView;
-        } else {
-            this.startView  -= this.countView;
-            this.endView    -= this.countView;
-        }
-        this.dispatchPaginationEvent()
-    }
-    handleNext(){
-        if (this.endView + this.countView >= this.allCount){
-            this.startView  = this.allCount - this.countView;
-            this.endView    = this.allCount;
-        } else {
-            this.startView  += this.countView;
-            this.endView    += this.countView;
-        }
-        this.dispatchPaginationEvent()
-    }
-    @api
-    resetPagination(){
-        this.startView  = 0;
-        this.endView    = this.countView;
-    }
-    get disabled(){
-        return {
-            prev: this.startView <= 0 ? true : false,
-            next: this.endView >= this.allCount ? true : false
-        }
-    }
-    dispatchPaginationEvent(){
-        this.dispatchEvent(new CustomEvent('pagination',{
-            detail:{
-                startView   : this.startView,
-                endView     : this.endView
-            }
-        }));
-    }
+	_pageSize;
+	@api get pageSize() {
+		return this._pageSize;
+	}
+	set pageSize(value) {
+		return this._pageSize = +value;
+	}
+
+	_listSize;
+	@api get listSize() {
+		return this._listSize;
+	}
+	set listSize(value) {
+		return this._listSize = +value;
+	}
+
+	get allPages() {
+		if (this._listSize % this._pageSize) {
+			return Math.floor(this.listSize / this.pageSize) + 1;
+		} else {
+			return Math.floor(this.listSize / this.pageSize);
+		}
+	}
+
+	currentPage = 1;
+	get startView() {
+		return (this.currentPage * this.pageSize) - this.pageSize + 1;
+	};
+	get endView() {
+		let temp = this.currentPage * this.pageSize;
+		return temp > this.listSize ? this.listSize : temp;
+	};
+
+	get disabled(){
+		return {
+			prev: this.currentPage == 1,
+			next: this.currentPage == this.allPages,
+		}
+	}
+
+	@api handlePrev(){
+		this.currentPage = this.disabled.prev ? 1 : this.currentPage - 1;
+		this.dispatchPaginationEvent()
+	}
+
+	@api handleNext(){
+		this.currentPage = this.disabled.next ? this.allPages : this.currentPage + 1;
+		this.dispatchPaginationEvent()
+	}
+
+	@api
+	resetPagination(){
+		this.currentPage = 1;
+	}
+
+	dispatchPaginationEvent(){
+		this.dispatchEvent(new CustomEvent('pagination',{
+			detail:{
+				startView   : this.startView - 1,
+				endView     : this.endView
+			}
+		}));
+	}
 }
